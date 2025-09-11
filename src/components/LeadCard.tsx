@@ -12,14 +12,25 @@ import {
 
 interface Lead {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
   email: string;
   company: string;
-  stage: 'hot' | 'warm' | 'cold';
-  lastContact: string;
+  leadSource: string;
+  interestArea: string;
+  preferredContactMethod: string;
+  location: string;
+  wellnessGoals: string;
+  leadStatus: 'New' | 'Contacted' | 'Qualified' | 'Not Interested' | 'Converted';
   nextFollowUp: string;
+  notes: string;
+  dateCaptured: string;
+  assignedSalesRep: string;
+  servicePackageDiscussed: string;
+  budgetRange: string;
+  leadScore: number;
   value: number;
-  source: string;
 }
 
 interface LeadCardProps {
@@ -27,14 +38,18 @@ interface LeadCardProps {
 }
 
 export const LeadCard = ({ lead }: LeadCardProps) => {
-  const getStageColor = (stage: Lead['stage']) => {
-    switch (stage) {
-      case 'hot':
-        return 'bg-hot-lead text-white';
-      case 'warm':
-        return 'bg-warm-lead text-white';
-      case 'cold':
-        return 'bg-cold-lead text-white';
+  const getStatusColor = (status: Lead['leadStatus']) => {
+    switch (status) {
+      case 'New':
+        return 'bg-blue-500 text-white';
+      case 'Contacted':
+        return 'bg-yellow-500 text-white';
+      case 'Qualified':
+        return 'bg-green-500 text-white';
+      case 'Not Interested':
+        return 'bg-red-500 text-white';
+      case 'Converted':
+        return 'bg-purple-500 text-white';
       default:
         return 'bg-muted';
     }
@@ -57,14 +72,19 @@ export const LeadCard = ({ lead }: LeadCardProps) => {
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="font-semibold text-lg">{lead.name}</h3>
+            <h3 className="font-semibold text-lg">{lead.firstName} {lead.lastName}</h3>
             <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
               <Building2 className="w-4 h-4" />
-              {lead.company}
+              {lead.company || 'Individual'}
             </div>
+            {lead.interestArea && (
+              <div className="text-xs text-primary font-medium mt-1">
+                {lead.interestArea}
+              </div>
+            )}
           </div>
-          <Badge className={getStageColor(lead.stage)}>
-            {lead.stage.toUpperCase()}
+          <Badge className={getStatusColor(lead.leadStatus)}>
+            {lead.leadStatus}
           </Badge>
         </div>
       </CardHeader>
@@ -76,16 +96,32 @@ export const LeadCard = ({ lead }: LeadCardProps) => {
             <span className="truncate">{lead.email}</span>
           </div>
           
+          {lead.phone && (
+            <div className="flex items-center gap-2 text-sm">
+              <Phone className="w-4 h-4 text-muted-foreground" />
+              <span className="truncate">{lead.phone}</span>
+            </div>
+          )}
+          
           <div className="flex items-center gap-2 text-sm">
             <DollarSign className="w-4 h-4 text-success" />
             <span className="font-medium">${lead.value.toLocaleString()}</span>
+            {lead.budgetRange && (
+              <span className="text-xs text-muted-foreground">({lead.budgetRange})</span>
+            )}
           </div>
+
+          {lead.wellnessGoals && (
+            <div className="text-xs text-muted-foreground bg-secondary/50 rounded px-2 py-1">
+              Goals: {lead.wellnessGoals}
+            </div>
+          )}
         </div>
 
         <div className="bg-muted/30 rounded-lg p-3 space-y-2">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Clock className="w-3 h-3" />
-            Last contact: {new Date(lead.lastContact).toLocaleDateString()}
+            Added: {new Date(lead.dateCaptured).toLocaleDateString()}
           </div>
           
           <div className={`flex items-center gap-2 text-xs font-medium ${
@@ -100,6 +136,12 @@ export const LeadCard = ({ lead }: LeadCardProps) => {
             {isOverdue && ' (Overdue)'}
             {isDueToday && ' (Today)'}
           </div>
+          
+          {lead.assignedSalesRep && (
+            <div className="text-xs text-muted-foreground">
+              Assigned: {lead.assignedSalesRep}
+            </div>
+          )}
         </div>
 
         <div className="flex gap-2 pt-2">
@@ -113,8 +155,15 @@ export const LeadCard = ({ lead }: LeadCardProps) => {
           </Button>
         </div>
 
-        <div className="text-xs text-muted-foreground bg-secondary/50 rounded px-2 py-1">
-          Source: {lead.source}
+        <div className="flex justify-between items-center text-xs">
+          <span className="text-muted-foreground bg-secondary/50 rounded px-2 py-1">
+            Source: {lead.leadSource}
+          </span>
+          {lead.leadScore > 0 && (
+            <span className="font-medium text-primary">
+              Score: {lead.leadScore}/10
+            </span>
+          )}
         </div>
       </CardContent>
     </Card>

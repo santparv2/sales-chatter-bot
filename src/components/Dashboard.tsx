@@ -19,14 +19,25 @@ import { EmailTemplates } from "./EmailTemplates";
 
 interface Lead {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
   email: string;
   company: string;
-  stage: 'hot' | 'warm' | 'cold';
-  lastContact: string;
+  leadSource: string;
+  interestArea: string;
+  preferredContactMethod: string;
+  location: string;
+  wellnessGoals: string;
+  leadStatus: 'New' | 'Contacted' | 'Qualified' | 'Not Interested' | 'Converted';
   nextFollowUp: string;
+  notes: string;
+  dateCaptured: string;
+  assignedSalesRep: string;
+  servicePackageDiscussed: string;
+  budgetRange: string;
+  leadScore: number;
   value: number;
-  source: string;
 }
 
 const Dashboard = () => {
@@ -35,45 +46,78 @@ const Dashboard = () => {
   
   const [leads, setLeads] = useState<Lead[]>([
     {
-      id: '1',
-      name: 'Sarah Johnson',
-      email: 'sarah@techcorp.com',
-      company: 'TechCorp Solutions',
-      stage: 'hot',
-      lastContact: '2024-01-10',
-      nextFollowUp: '2024-01-12',
-      value: 15000,
-      source: 'Website Form'
+      id: 'LEAD-1705123456789',
+      firstName: 'Sarah',
+      lastName: 'Johnson',
+      phone: '+1 (555) 123-4567',
+      email: 'sarah@wellness.com',
+      company: 'Wellness Corp',
+      leadSource: 'Facebook',
+      interestArea: 'Yoga',
+      preferredContactMethod: 'WhatsApp',
+      location: 'Los Angeles, CA',
+      wellnessGoals: 'Stress relief and flexibility',
+      leadStatus: 'Qualified',
+      nextFollowUp: '2024-01-18',
+      notes: 'Prefers morning sessions, has lower back issues',
+      dateCaptured: '2024-01-15',
+      assignedSalesRep: 'Lisa Chen',
+      servicePackageDiscussed: 'Premium Yoga Package',
+      budgetRange: '$1,000 - $2,500',
+      leadScore: 8,
+      value: 2000
     },
     {
-      id: '2',
-      name: 'Michael Chen',
-      email: 'mchen@innovate.io',
-      company: 'Innovate Labs',
-      stage: 'warm',
-      lastContact: '2024-01-08',
-      nextFollowUp: '2024-01-15',
-      value: 25000,
-      source: 'Referral'
-    },
-    {
-      id: '3',
-      name: 'Emily Rodriguez',
-      email: 'emily@startupx.com',
-      company: 'StartupX',
-      stage: 'cold',
-      lastContact: '2024-01-05',
+      id: 'LEAD-1705123456790',
+      firstName: 'Mike',
+      lastName: 'Chen',
+      phone: '+1 (555) 987-6543',
+      email: 'mike@health.io',
+      company: 'Health Innovations',
+      leadSource: 'Website',
+      interestArea: 'Nutrition Coaching',
+      preferredContactMethod: 'Email',
+      location: 'San Francisco, CA',
+      wellnessGoals: 'Weight loss and muscle gain',
+      leadStatus: 'Contacted',
       nextFollowUp: '2024-01-20',
-      value: 8000,
-      source: 'Cold Email'
+      notes: 'Interested in corporate wellness program',
+      dateCaptured: '2024-01-10',
+      assignedSalesRep: 'John Smith',
+      servicePackageDiscussed: 'Corporate Nutrition Plan',
+      budgetRange: '$2,500 - $5,000',
+      leadScore: 7,
+      value: 3500
+    },
+    {
+      id: 'LEAD-1705123456791',
+      firstName: 'Emma',
+      lastName: 'Davis',
+      phone: '+1 (555) 456-7890',
+      email: 'emma@spa.biz',
+      company: 'Luxury Spa Co',
+      leadSource: 'Referral',
+      interestArea: 'Spa Services',
+      preferredContactMethod: 'Phone',
+      location: 'Miami, FL',
+      wellnessGoals: 'Skin care and relaxation',
+      leadStatus: 'New',
+      nextFollowUp: '2024-01-25',
+      notes: 'VIP client referral, high value potential',
+      dateCaptured: '2024-01-05',
+      assignedSalesRep: 'Maria Rodriguez',
+      servicePackageDiscussed: 'Ultimate Spa Experience',
+      budgetRange: '$5,000+',
+      leadScore: 9,
+      value: 8000
     }
   ]);
 
   const stats = {
     totalLeads: leads.length,
-    hotLeads: leads.filter(l => l.stage === 'hot').length,
+    qualifiedLeads: leads.filter(l => l.leadStatus === 'Qualified').length,
     totalValue: leads.reduce((sum, lead) => sum + lead.value, 0),
-    conversionRate: 23.5
+    conversionRate: leads.length > 0 ? Math.round((leads.filter(l => l.leadStatus === 'Converted').length / leads.length) * 100) : 0
   };
 
   const handleAddLead = (newLead: Omit<Lead, 'id'>) => {
@@ -152,11 +196,11 @@ const Dashboard = () => {
 
               <Card className="bg-gradient-to-br from-card to-success-light shadow-[var(--shadow-card)]">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Hot Leads</CardTitle>
-                  <Target className="h-4 w-4 text-hot-lead" />
+                  <CardTitle className="text-sm font-medium">Qualified Leads</CardTitle>
+                  <Target className="h-4 w-4 text-success" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-hot-lead">{stats.hotLeads}</div>
+                  <div className="text-2xl font-bold text-success">{stats.qualifiedLeads}</div>
                   <p className="text-xs text-muted-foreground">Ready to close</p>
                 </CardContent>
               </Card>
@@ -207,7 +251,7 @@ const Dashboard = () => {
               <h2 className="text-2xl font-bold">All Leads</h2>
               <div className="flex gap-2">
                 <Badge variant="secondary">Total: {leads.length}</Badge>
-                <Badge className="bg-hot-lead text-white">Hot: {stats.hotLeads}</Badge>
+                <Badge className="bg-success text-white">Qualified: {stats.qualifiedLeads}</Badge>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
