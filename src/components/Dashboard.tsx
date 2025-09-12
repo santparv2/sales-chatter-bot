@@ -21,18 +21,24 @@ interface Lead {
   id: string;
   firstName: string;
   lastName: string;
+  age: number;
+  weight: string;
+  gender: 'Male' | 'Female';
   phone: string;
   email: string;
-  company: string;
-  leadSource: string;
-  interestArea: string;
   preferredContactMethod: string;
   location: string;
-  wellnessGoals: string;
-  leadStatus: 'New' | 'Contacted' | 'Qualified' | 'Not Interested' | 'Converted';
-  nextFollowUp: string;
-  notes: string;
+  primaryGoals: string;
+  challengesPainPoints: string;
+  currentRoutineLifestyle: string;
+  leadSource: string;
   dateCaptured: string;
+  firstContactMadeBy: string;
+  methodOfContact: string;
+  nextFollowUp: string;
+  preferredFollowUpTime: string;
+  notesFromLastConversation: string;
+  leadStatus: 'New' | 'Contacted' | 'Interested' | 'Not Interested' | 'Booked Consultation' | 'Enrolled';
   assignedSalesRep: string;
   servicePackageDiscussed: string;
   budgetRange: string;
@@ -49,43 +55,55 @@ const Dashboard = () => {
       id: 'LEAD-1705123456789',
       firstName: 'Sarah',
       lastName: 'Johnson',
+      age: 32,
+      weight: '65kg',
+      gender: 'Female',
       phone: '+1 (555) 123-4567',
       email: 'sarah@wellness.com',
-      company: 'Wellness Corp',
-      leadSource: 'Facebook',
-      interestArea: 'Yoga',
       preferredContactMethod: 'WhatsApp',
-      location: 'Los Angeles, CA',
-      wellnessGoals: 'Stress relief and flexibility',
-      leadStatus: 'Qualified',
-      nextFollowUp: '2024-01-18',
-      notes: 'Prefers morning sessions, has lower back issues',
+      location: 'Los Angeles, CA, PST',
+      primaryGoals: 'Stress relief and flexibility improvement',
+      challengesPainPoints: 'Lower back pain, high stress from work',
+      currentRoutineLifestyle: 'Sedentary office job, occasional yoga',
+      leadSource: 'Instagram',
       dateCaptured: '2024-01-15',
+      firstContactMadeBy: 'Lisa Chen',
+      methodOfContact: 'DM',
+      nextFollowUp: '2024-01-18',
+      preferredFollowUpTime: 'Morning 9-11 AM',
+      notesFromLastConversation: 'Prefers morning sessions, has lower back issues, very motivated',
+      leadStatus: 'Interested',
       assignedSalesRep: 'Lisa Chen',
       servicePackageDiscussed: 'Premium Yoga Package',
-      budgetRange: '$1,000 - $2,500',
+      budgetRange: '$1000-$2000',
       leadScore: 8,
-      value: 2000
+      value: 1800
     },
     {
       id: 'LEAD-1705123456790',
       firstName: 'Mike',
       lastName: 'Chen',
+      age: 29,
+      weight: '78kg',
+      gender: 'Male',
       phone: '+1 (555) 987-6543',
       email: 'mike@health.io',
-      company: 'Health Innovations',
-      leadSource: 'Website',
-      interestArea: 'Nutrition Coaching',
       preferredContactMethod: 'Email',
-      location: 'San Francisco, CA',
-      wellnessGoals: 'Weight loss and muscle gain',
-      leadStatus: 'Contacted',
-      nextFollowUp: '2024-01-20',
-      notes: 'Interested in corporate wellness program',
+      location: 'San Francisco, CA, PST',
+      primaryGoals: 'Weight loss and muscle gain',
+      challengesPainPoints: 'Busy schedule, poor eating habits',
+      currentRoutineLifestyle: 'Corporate executive, travels frequently',
+      leadSource: 'Website',
       dateCaptured: '2024-01-10',
+      firstContactMadeBy: 'John Smith',
+      methodOfContact: 'Form Submission',
+      nextFollowUp: '2024-01-20',
+      preferredFollowUpTime: 'Evening 6-8 PM',
+      notesFromLastConversation: 'Interested in corporate wellness program for his team',
+      leadStatus: 'Contacted',
       assignedSalesRep: 'John Smith',
       servicePackageDiscussed: 'Corporate Nutrition Plan',
-      budgetRange: '$2,500 - $5,000',
+      budgetRange: '$2000+',
       leadScore: 7,
       value: 3500
     },
@@ -93,31 +111,37 @@ const Dashboard = () => {
       id: 'LEAD-1705123456791',
       firstName: 'Emma',
       lastName: 'Davis',
+      age: 45,
+      weight: '70kg',
+      gender: 'Female',
       phone: '+1 (555) 456-7890',
       email: 'emma@spa.biz',
-      company: 'Luxury Spa Co',
-      leadSource: 'Referral',
-      interestArea: 'Spa Services',
       preferredContactMethod: 'Phone',
-      location: 'Miami, FL',
-      wellnessGoals: 'Skin care and relaxation',
-      leadStatus: 'New',
-      nextFollowUp: '2024-01-25',
-      notes: 'VIP client referral, high value potential',
+      location: 'Miami, FL, EST',
+      primaryGoals: 'Skin care and relaxation, stress management',
+      challengesPainPoints: 'High stress, aging concerns, lack of self-care time',
+      currentRoutineLifestyle: 'Business owner, high-stress lifestyle',
+      leadSource: 'Referral',
       dateCaptured: '2024-01-05',
+      firstContactMadeBy: 'Maria Rodriguez',
+      methodOfContact: 'Phone',
+      nextFollowUp: '2024-01-25',
+      preferredFollowUpTime: 'Afternoon 2-4 PM',
+      notesFromLastConversation: 'VIP client referral, high value potential, wants luxury experience',
+      leadStatus: 'New',
       assignedSalesRep: 'Maria Rodriguez',
       servicePackageDiscussed: 'Ultimate Spa Experience',
-      budgetRange: '$5,000+',
+      budgetRange: '$2000+',
       leadScore: 9,
-      value: 8000
+      value: 5000
     }
   ]);
 
   const stats = {
     totalLeads: leads.length,
-    qualifiedLeads: leads.filter(l => l.leadStatus === 'Qualified').length,
+    qualifiedLeads: leads.filter(l => l.leadStatus === 'Interested' || l.leadStatus === 'Booked Consultation').length,
     totalValue: leads.reduce((sum, lead) => sum + lead.value, 0),
-    conversionRate: leads.length > 0 ? Math.round((leads.filter(l => l.leadStatus === 'Converted').length / leads.length) * 100) : 0
+    conversionRate: leads.length > 0 ? Math.round((leads.filter(l => l.leadStatus === 'Enrolled').length / leads.length) * 100) : 0
   };
 
   const handleAddLead = (newLead: Omit<Lead, 'id'>) => {

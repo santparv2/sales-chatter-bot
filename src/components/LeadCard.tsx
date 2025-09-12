@@ -14,18 +14,24 @@ interface Lead {
   id: string;
   firstName: string;
   lastName: string;
+  age: number;
+  weight: string;
+  gender: 'Male' | 'Female';
   phone: string;
   email: string;
-  company: string;
-  leadSource: string;
-  interestArea: string;
   preferredContactMethod: string;
   location: string;
-  wellnessGoals: string;
-  leadStatus: 'New' | 'Contacted' | 'Qualified' | 'Not Interested' | 'Converted';
-  nextFollowUp: string;
-  notes: string;
+  primaryGoals: string;
+  challengesPainPoints: string;
+  currentRoutineLifestyle: string;
+  leadSource: string;
   dateCaptured: string;
+  firstContactMadeBy: string;
+  methodOfContact: string;
+  nextFollowUp: string;
+  preferredFollowUpTime: string;
+  notesFromLastConversation: string;
+  leadStatus: 'New' | 'Contacted' | 'Interested' | 'Not Interested' | 'Booked Consultation' | 'Enrolled';
   assignedSalesRep: string;
   servicePackageDiscussed: string;
   budgetRange: string;
@@ -44,12 +50,14 @@ export const LeadCard = ({ lead }: LeadCardProps) => {
         return 'bg-blue-500 text-white';
       case 'Contacted':
         return 'bg-yellow-500 text-white';
-      case 'Qualified':
+      case 'Interested':
         return 'bg-green-500 text-white';
+      case 'Booked Consultation':
+        return 'bg-purple-500 text-white';
+      case 'Enrolled':
+        return 'bg-emerald-500 text-white';
       case 'Not Interested':
         return 'bg-red-500 text-white';
-      case 'Converted':
-        return 'bg-purple-500 text-white';
       default:
         return 'bg-muted';
     }
@@ -74,12 +82,11 @@ export const LeadCard = ({ lead }: LeadCardProps) => {
           <div>
             <h3 className="font-semibold text-lg">{lead.firstName} {lead.lastName}</h3>
             <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-              <Building2 className="w-4 h-4" />
-              {lead.company || 'Individual'}
+              <span>{lead.age} years old, {lead.gender}</span>
             </div>
-            {lead.interestArea && (
+            {lead.primaryGoals && (
               <div className="text-xs text-primary font-medium mt-1">
-                {lead.interestArea}
+                Primary Goals: {lead.primaryGoals}
               </div>
             )}
           </div>
@@ -111,9 +118,9 @@ export const LeadCard = ({ lead }: LeadCardProps) => {
             )}
           </div>
 
-          {lead.wellnessGoals && (
+          {lead.challengesPainPoints && (
             <div className="text-xs text-muted-foreground bg-secondary/50 rounded px-2 py-1">
-              Goals: {lead.wellnessGoals}
+              Challenges: {lead.challengesPainPoints}
             </div>
           )}
         </div>
