@@ -46,6 +46,9 @@ interface Lead {
   budgetRange: string;
   leadScore: number;
   value: number;
+  whatsappNumber?: string;
+  facebookHandle?: string;
+  instagramHandle?: string;
 }
 
 interface AddLeadDialogProps {
@@ -82,7 +85,10 @@ export const AddLeadDialog = ({ open, onOpenChange, onAddLead }: AddLeadDialogPr
     servicePackageDiscussed: '',
     budgetRange: '',
     leadScore: 0,
-    value: 0
+    value: 0,
+    whatsappNumber: '',
+    facebookHandle: '',
+    instagramHandle: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -131,7 +137,10 @@ export const AddLeadDialog = ({ open, onOpenChange, onAddLead }: AddLeadDialogPr
       servicePackageDiscussed: '',
       budgetRange: '',
       leadScore: 0,
-      value: 0
+      value: 0,
+      whatsappNumber: '',
+      facebookHandle: '',
+      instagramHandle: ''
     });
 
     toast({
@@ -244,6 +253,8 @@ export const AddLeadDialog = ({ open, onOpenChange, onAddLead }: AddLeadDialogPr
                     <SelectItem value="Text">Text</SelectItem>
                     <SelectItem value="Email">Email</SelectItem>
                     <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                    <SelectItem value="Facebook">Facebook</SelectItem>
+                    <SelectItem value="Instagram">Instagram</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -255,6 +266,41 @@ export const AddLeadDialog = ({ open, onOpenChange, onAddLead }: AddLeadDialogPr
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   placeholder="City, State/Country, Timezone"
                 />
+              </div>
+            </div>
+
+            {/* Social Media Handles */}
+            <div className="space-y-4">
+              <h4 className="text-md font-medium text-muted-foreground">📱 Social Media Contact</h4>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
+                  <Input
+                    id="whatsappNumber"
+                    value={formData.whatsappNumber}
+                    onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })}
+                    placeholder="+1234567890"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="facebookHandle">Facebook Handle</Label>
+                  <Input
+                    id="facebookHandle"
+                    value={formData.facebookHandle}
+                    onChange={(e) => setFormData({ ...formData, facebookHandle: e.target.value })}
+                    placeholder="username or profile.php?id=123"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="instagramHandle">Instagram Handle</Label>
+                  <Input
+                    id="instagramHandle"
+                    value={formData.instagramHandle}
+                    onChange={(e) => setFormData({ ...formData, instagramHandle: e.target.value })}
+                    placeholder="@username"
+                  />
+                </div>
               </div>
             </div>
           </div>

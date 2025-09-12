@@ -44,6 +44,9 @@ interface Lead {
   budgetRange: string;
   leadScore: number;
   value: number;
+  whatsappNumber?: string;
+  facebookHandle?: string;
+  instagramHandle?: string;
 }
 
 const Dashboard = () => {
@@ -77,7 +80,10 @@ const Dashboard = () => {
       servicePackageDiscussed: 'Premium Yoga Package',
       budgetRange: '$1000-$2000',
       leadScore: 8,
-      value: 1800
+      value: 1800,
+      whatsappNumber: '+1 (555) 123-4567',
+      facebookHandle: 'sarah.johnson.wellness',
+      instagramHandle: '@sarah_wellness_journey'
     },
     {
       id: 'LEAD-1705123456790',
@@ -105,7 +111,10 @@ const Dashboard = () => {
       servicePackageDiscussed: 'Corporate Nutrition Plan',
       budgetRange: '$2000+',
       leadScore: 7,
-      value: 3500
+      value: 3500,
+      whatsappNumber: '+1 (555) 987-6543',
+      facebookHandle: 'mike.chen.sf',
+      instagramHandle: '@mikefitnesssf'
     },
     {
       id: 'LEAD-1705123456791',
@@ -133,7 +142,10 @@ const Dashboard = () => {
       servicePackageDiscussed: 'Ultimate Spa Experience',
       budgetRange: '$2000+',
       leadScore: 9,
-      value: 5000
+      value: 5000,
+      whatsappNumber: '+1 (555) 456-7890',
+      facebookHandle: 'emma.davis.spa',
+      instagramHandle: '@emma_luxury_wellness'
     }
   ]);
 

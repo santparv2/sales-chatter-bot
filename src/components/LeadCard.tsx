@@ -7,7 +7,10 @@ import {
   Phone, 
   Calendar, 
   DollarSign,
-  Clock
+  Clock,
+  MessageCircle,
+  Instagram,
+  Facebook
 } from "lucide-react";
 
 interface Lead {
@@ -37,6 +40,9 @@ interface Lead {
   budgetRange: string;
   leadScore: number;
   value: number;
+  whatsappNumber?: string;
+  facebookHandle?: string;
+  instagramHandle?: string;
 }
 
 interface LeadCardProps {
@@ -60,6 +66,27 @@ export const LeadCard = ({ lead }: LeadCardProps) => {
         return 'bg-red-500 text-white';
       default:
         return 'bg-muted';
+    }
+  };
+
+  const handleWhatsApp = () => {
+    const number = lead.whatsappNumber || lead.phone;
+    if (number) {
+      const cleanNumber = number.replace(/\D/g, '');
+      const message = `Hi ${lead.firstName}, I'm reaching out regarding your wellness goals. How are you doing?`;
+      window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`, '_blank');
+    }
+  };
+
+  const handleFacebook = () => {
+    if (lead.facebookHandle) {
+      window.open(`https://facebook.com/${lead.facebookHandle}`, '_blank');
+    }
+  };
+
+  const handleInstagram = () => {
+    if (lead.instagramHandle) {
+      window.open(`https://instagram.com/${lead.instagramHandle}`, '_blank');
     }
   };
 
@@ -152,14 +179,36 @@ export const LeadCard = ({ lead }: LeadCardProps) => {
         </div>
 
         <div className="flex gap-2 pt-2">
-          <Button variant="outline" size="sm" className="flex-1">
+          <Button variant="outline" size="sm" className="flex-1" onClick={() => window.open(`tel:${lead.phone}`)}>
             <Phone className="w-4 h-4 mr-1" />
             Call
           </Button>
-          <Button variant="outline" size="sm" className="flex-1">
+          <Button variant="outline" size="sm" className="flex-1" onClick={() => window.open(`mailto:${lead.email}`)}>
             <Mail className="w-4 h-4 mr-1" />
             Email
           </Button>
+        </div>
+
+        {/* Social Media Contact Buttons */}
+        <div className="flex gap-2">
+          {(lead.whatsappNumber || lead.phone) && (
+            <Button variant="outline" size="sm" className="flex-1 bg-green-50 hover:bg-green-100 border-green-200" onClick={handleWhatsApp}>
+              <MessageCircle className="w-4 h-4 mr-1 text-green-600" />
+              WhatsApp
+            </Button>
+          )}
+          {lead.facebookHandle && (
+            <Button variant="outline" size="sm" className="flex-1 bg-blue-50 hover:bg-blue-100 border-blue-200" onClick={handleFacebook}>
+              <Facebook className="w-4 h-4 mr-1 text-blue-600" />
+              Facebook
+            </Button>
+          )}
+          {lead.instagramHandle && (
+            <Button variant="outline" size="sm" className="flex-1 bg-pink-50 hover:bg-pink-100 border-pink-200" onClick={handleInstagram}>
+              <Instagram className="w-4 h-4 mr-1 text-pink-600" />
+              Instagram
+            </Button>
+          )}
         </div>
 
         <div className="flex justify-between items-center text-xs">
