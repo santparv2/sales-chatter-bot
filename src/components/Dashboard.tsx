@@ -78,7 +78,7 @@ const Dashboard = () => {
       leadStatus: 'Interested',
       assignedSalesRep: 'Lisa Chen',
       servicePackageDiscussed: 'Premium Yoga Package',
-      budgetRange: '$1000-$2000',
+      budgetRange: 'Rs 1000-Rs 2000',
       leadScore: 8,
       value: 1800,
       whatsappNumber: '+1 (555) 123-4567',
@@ -109,7 +109,7 @@ const Dashboard = () => {
       leadStatus: 'Contacted',
       assignedSalesRep: 'John Smith',
       servicePackageDiscussed: 'Corporate Nutrition Plan',
-      budgetRange: '$2000+',
+      budgetRange: 'Rs 2000+',
       leadScore: 7,
       value: 3500,
       whatsappNumber: '+1 (555) 987-6543',
@@ -140,7 +140,7 @@ const Dashboard = () => {
       leadStatus: 'New',
       assignedSalesRep: 'Maria Rodriguez',
       servicePackageDiscussed: 'Ultimate Spa Experience',
-      budgetRange: '$2000+',
+      budgetRange: 'Rs 2000+',
       leadScore: 9,
       value: 5000,
       whatsappNumber: '+1 (555) 456-7890',
@@ -171,7 +171,7 @@ const Dashboard = () => {
       leadStatus: 'Booked Consultation',
       assignedSalesRep: 'Alex Thompson',
       servicePackageDiscussed: 'Marathon Training Program',
-      budgetRange: '$500-$1000',
+      budgetRange: 'Rs 500-Rs 1000',
       leadScore: 9,
       value: 800,
       whatsappNumber: '+1 (555) 234-5678',
@@ -202,7 +202,7 @@ const Dashboard = () => {
       leadStatus: 'Interested',
       assignedSalesRep: 'Sarah Williams',
       servicePackageDiscussed: 'Beginner Strength Package',
-      budgetRange: '$300-$500',
+      budgetRange: 'Rs 300-Rs 500',
       leadScore: 6,
       value: 400,
       whatsappNumber: '+1 (555) 345-6789',
@@ -233,7 +233,7 @@ const Dashboard = () => {
       leadStatus: 'Enrolled',
       assignedSalesRep: 'Dr. Patricia Lee',
       servicePackageDiscussed: 'Medical Fitness Program',
-      budgetRange: '$2000+',
+      budgetRange: 'Rs 2000+',
       leadScore: 10,
       value: 4500,
       whatsappNumber: '+1 (555) 567-8901',
@@ -264,7 +264,7 @@ const Dashboard = () => {
       leadStatus: 'Contacted',
       assignedSalesRep: 'Emma Johnson',
       servicePackageDiscussed: 'Postpartum Recovery Program',
-      budgetRange: '$500-$1000',
+      budgetRange: 'Rs 500-Rs 1000',
       leadScore: 8,
       value: 750,
       whatsappNumber: '+1 (555) 678-9012',
@@ -295,7 +295,7 @@ const Dashboard = () => {
       leadStatus: 'Interested',
       assignedSalesRep: 'Marcus Williams',
       servicePackageDiscussed: 'Competition Prep Program',
-      budgetRange: '$1000-$2000',
+      budgetRange: 'Rs 1000-Rs 2000',
       leadScore: 7,
       value: 1200,
       whatsappNumber: '+1 (555) 789-0123',
@@ -326,7 +326,7 @@ const Dashboard = () => {
       leadStatus: 'New',
       assignedSalesRep: 'Dr. Lisa Chang',
       servicePackageDiscussed: 'Menopause Wellness Program',
-      budgetRange: '$1000-$2000',
+      budgetRange: 'Rs 1000-Rs 2000',
       leadScore: 8,
       value: 1500,
       whatsappNumber: '+1 (555) 890-1234',
@@ -357,7 +357,7 @@ const Dashboard = () => {
       leadStatus: 'Not Interested',
       assignedSalesRep: 'Coach Mike Davis',
       servicePackageDiscussed: 'Athletic Performance Program',
-      budgetRange: '$300-$500',
+      budgetRange: 'Rs 300-Rs 500',
       leadScore: 4,
       value: 400,
       whatsappNumber: '+1 (555) 901-2345',
@@ -464,7 +464,7 @@ const Dashboard = () => {
                   <TrendingUp className="h-4 w-4 text-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">${stats.totalValue.toLocaleString()}</div>
+                  <div className="text-2xl font-bold">Rs {stats.totalValue.toLocaleString()}</div>
                   <p className="text-xs text-muted-foreground">Total potential revenue</p>
                 </CardContent>
               </Card>
