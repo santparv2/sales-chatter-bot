@@ -453,22 +453,26 @@ const Dashboard = () => {
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="bg-gradient-to-br from-card to-secondary/20 shadow-[var(--shadow-card)]">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
+              <Card className="bg-gradient-to-br from-card to-secondary/20 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-all duration-200 hover:scale-105 animate-slide-up">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Leads</CardTitle>
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <Users className="h-4 w-4 text-primary" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalLeads}</div>
+                  <div className="text-2xl font-bold text-foreground">{stats.totalLeads}</div>
                   <p className="text-xs text-muted-foreground">Active prospects</p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-card to-success-light shadow-[var(--shadow-card)]">
+              <Card className="bg-gradient-to-br from-card to-success-light shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-all duration-200 hover:scale-105 animate-slide-up" style={{ animationDelay: '0.1s' }}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Qualified Leads</CardTitle>
-                  <Target className="h-4 w-4 text-success" />
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Qualified Leads</CardTitle>
+                  <div className="p-2 bg-success/10 rounded-full">
+                    <Target className="h-4 w-4 text-success" />
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-success">{stats.qualifiedLeads}</div>
@@ -476,59 +480,101 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-card to-primary/10 shadow-[var(--shadow-card)]">
+              <Card className="bg-gradient-to-br from-card to-primary/10 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-all duration-200 hover:scale-105 animate-slide-up" style={{ animationDelay: '0.2s' }}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Pipeline Value</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-primary" />
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Pipeline Value</CardTitle>
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <TrendingUp className="h-4 w-4 text-primary" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">Rs {stats.totalValue.toLocaleString()}</div>
+                  <div className="text-2xl font-bold text-foreground">Rs {stats.totalValue.toLocaleString()}</div>
                   <p className="text-xs text-muted-foreground">Total potential revenue</p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-card to-warning-light shadow-[var(--shadow-card)]">
+              <Card className="bg-gradient-to-br from-card to-warning-light shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-all duration-200 hover:scale-105 animate-slide-up" style={{ animationDelay: '0.3s' }}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
-                  <CheckCircle className="h-4 w-4 text-success" />
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Conversion Rate</CardTitle>
+                  <div className="p-2 bg-success/10 rounded-full">
+                    <CheckCircle className="h-4 w-4 text-success" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.conversionRate}%</div>
+                  <div className="text-2xl font-bold text-foreground">{stats.conversionRate}%</div>
                   <p className="text-xs text-muted-foreground">Last 30 days</p>
                 </CardContent>
               </Card>
             </div>
 
             {/* Recent Leads */}
-            <Card className="shadow-[var(--shadow-elevated)]">
+            <Card className="shadow-[var(--shadow-elevated)] animate-fade-in backdrop-blur-sm bg-card/95 border-border/50" style={{ animationDelay: '0.4s' }}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
+                <CardTitle className="flex items-center gap-2 text-foreground">
+                  <Calendar className="w-5 h-5 text-primary" />
                   Recent Leads & Follow-ups
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {leads.slice(0, 3).map((lead) => (
-                  <LeadCard key={lead.id} lead={lead} />
+                {leads.slice(0, 3).map((lead, index) => (
+                  <div 
+                    key={lead.id} 
+                    className="animate-slide-up"
+                    style={{ animationDelay: `${0.5 + index * 0.1}s` }}
+                  >
+                    <LeadCard lead={lead} />
+                  </div>
                 ))}
+                {leads.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>No leads yet. Add your first lead to get started!</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
         )}
 
         {activeTab === 'leads' && (
-          <div className="space-y-6">
+          <div className="space-y-6 animate-fade-in">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">All Leads</h2>
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+                All Leads
+              </h2>
               <div className="flex gap-2">
-                <Badge variant="secondary">Total: {leads.length}</Badge>
-                <Badge className="bg-success text-white">Qualified: {stats.qualifiedLeads}</Badge>
+                <Badge variant="secondary" className="animate-pulse-glow">
+                  Total: {leads.length}
+                </Badge>
+                <Badge className="bg-success text-white hover:bg-success/90 transition-colors duration-200">
+                  Qualified: {stats.qualifiedLeads}
+                </Badge>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {leads.map((lead) => (
-                <LeadCard key={lead.id} lead={lead} />
+              {leads.map((lead, index) => (
+                <div 
+                  key={lead.id}
+                  className="animate-slide-up"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <LeadCard lead={lead} />
+                </div>
               ))}
+              {leads.length === 0 && (
+                <div className="col-span-full text-center py-16 animate-fade-in">
+                  <div className="text-6xl mb-4">🎯</div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No leads yet</h3>
+                  <p className="text-muted-foreground mb-6">Start building your pipeline by adding your first lead!</p>
+                  <Button
+                    onClick={() => setShowAddLead(true)}
+                    className="bg-gradient-to-r from-primary to-primary-glow hover:shadow-[var(--shadow-button)] transition-all duration-200 hover:scale-105"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Your First Lead
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         )}

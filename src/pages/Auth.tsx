@@ -8,13 +8,17 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Session } from "@supabase/supabase-js";
+import { Loader2, Mail, Lock, User2, CheckCircle, AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
   
   // Form states
   const [email, setEmail] = useState("");
@@ -82,11 +86,15 @@ const Auth = () => {
         } else {
           setError(error.message);
         }
-      } else {
-        setError("");
-        // Show success message
-        alert("Check your email for the confirmation link!");
-      }
+        } else {
+          setError("");
+          setSuccess("Check your email for the confirmation link!");
+          toast({
+            title: "Account created successfully!",
+            description: "Please check your email to confirm your account.",
+            duration: 5000,
+          });
+        }
     } catch (error) {
       console.error("Signup error:", error);
       setError("An unexpected error occurred during signup.");
@@ -114,6 +122,13 @@ const Auth = () => {
         } else {
           setError(error.message);
         }
+      } else {
+        setSuccess("Welcome back! Redirecting to dashboard...");
+        toast({
+          title: "Signed in successfully!",
+          description: "Welcome back to your CRM dashboard.",
+          duration: 3000,
+        });
       }
     } catch (error) {
       console.error("Signin error:", error);
@@ -124,117 +139,172 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-[var(--shadow-elevated)]">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">CRM Access</CardTitle>
-          <p className="text-sm text-muted-foreground text-center">
+    <div className="min-h-screen bg-[var(--gradient-hero)] flex items-center justify-center p-4 animate-fade-in">
+      <Card className="w-full max-w-md shadow-[var(--shadow-elevated)] animate-scale-in backdrop-blur-sm bg-card/95 border-border/50">
+        <CardHeader className="space-y-3 text-center">
+          <div className="mx-auto w-12 h-12 bg-gradient-to-r from-primary to-primary-glow rounded-full flex items-center justify-center mb-2 animate-pulse-glow">
+            <User2 className="h-6 w-6 text-primary-foreground" />
+          </div>
+          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+            CRM Access
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
             Sign in to manage your leads and customers
           </p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           <Tabs defaultValue="signin" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-muted/50">
+              <TabsTrigger value="signin" className="transition-all duration-200">Sign In</TabsTrigger>
+              <TabsTrigger value="signup" className="transition-all duration-200">Sign Up</TabsTrigger>
             </TabsList>
             
             {error && (
-              <Alert className="border-destructive">
-                <AlertDescription className="text-destructive">
+              <Alert className="border-destructive/50 bg-destructive/5 animate-slide-up">
+                <AlertCircle className="h-4 w-4 text-destructive" />
+                <AlertDescription className="text-destructive font-medium">
                   {error}
                 </AlertDescription>
               </Alert>
             )}
 
-            <TabsContent value="signin">
+            {success && (
+              <Alert className="border-success/50 bg-success/5 animate-slide-up">
+                <CheckCircle className="h-4 w-4 text-success" />
+                <AlertDescription className="text-success font-medium">
+                  {success}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <TabsContent value="signin" className="space-y-4 animate-fade-in">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email</Label>
-                  <Input
-                    id="signin-email"
-                    type="email"
-                    placeholder="Enter your email (e.g., user@gmail.com)"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value.trim())}
-                    required
-                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                  />
+                  <Label htmlFor="signin-email" className="text-sm font-medium">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signin-email"
+                      type="email"
+                      placeholder="Enter your email (e.g., user@gmail.com)"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value.trim())}
+                      required
+                      pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                      className="pl-10 transition-all duration-200 focus:shadow-[var(--shadow-glow)] focus:border-primary"
+                      disabled={loading}
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signin-password">Password</Label>
-                  <Input
-                    id="signin-password"
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
+                  <Label htmlFor="signin-password" className="text-sm font-medium">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signin-password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="pl-10 transition-all duration-200 focus:shadow-[var(--shadow-glow)] focus:border-primary"
+                      disabled={loading}
+                    />
+                  </div>
                 </div>
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-primary to-primary-glow"
+                  className="w-full bg-gradient-to-r from-primary to-primary-glow hover:shadow-[var(--shadow-button)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   disabled={loading}
                 >
-                  {loading ? "Signing in..." : "Sign In"}
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign In"
+                  )}
                 </Button>
               </form>
             </TabsContent>
 
-            <TabsContent value="signup">
+            <TabsContent value="signup" className="space-y-4 animate-fade-in">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-name">Display Name</Label>
-                  <Input
-                    id="signup-name"
-                    type="text"
-                    placeholder="Enter your name"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    required
-                  />
+                  <Label htmlFor="signup-name" className="text-sm font-medium">Display Name</Label>
+                  <div className="relative">
+                    <User2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signup-name"
+                      type="text"
+                      placeholder="Enter your name"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      required
+                      className="pl-10 transition-all duration-200 focus:shadow-[var(--shadow-glow)] focus:border-primary"
+                      disabled={loading}
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="Enter your email (e.g., user@gmail.com)"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value.trim())}
-                    required
-                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                  />
+                  <Label htmlFor="signup-email" className="text-sm font-medium">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      placeholder="Enter your email (e.g., user@gmail.com)"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value.trim())}
+                      required
+                      pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                      className="pl-10 transition-all duration-200 focus:shadow-[var(--shadow-glow)] focus:border-primary"
+                      disabled={loading}
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    placeholder="Create a password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={6}
-                  />
+                  <Label htmlFor="signup-password" className="text-sm font-medium">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signup-password"
+                      type="password"
+                      placeholder="Create a password (min. 6 characters)"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={6}
+                      className="pl-10 transition-all duration-200 focus:shadow-[var(--shadow-glow)] focus:border-primary"
+                      disabled={loading}
+                    />
+                  </div>
                 </div>
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-primary to-primary-glow"
+                  className="w-full bg-gradient-to-r from-primary to-primary-glow hover:shadow-[var(--shadow-button)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   disabled={loading}
                 >
-                  {loading ? "Creating account..." : "Sign Up"}
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating account...
+                    </>
+                  ) : (
+                    "Sign Up"
+                  )}
                 </Button>
               </form>
             </TabsContent>
           </Tabs>
 
-          <div className="mt-4 text-center">
+          <div className="mt-6 text-center">
             <Button
               variant="ghost"
               onClick={() => navigate('/')}
-              className="text-sm text-muted-foreground"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+              disabled={loading}
             >
               ← Back to Home
             </Button>
