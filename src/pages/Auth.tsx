@@ -55,7 +55,11 @@ const Auth = () => {
     setError("");
 
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      // Get the current origin, fallback to production URL if needed
+      const baseUrl = window.location.origin.includes('localhost') 
+        ? 'https://id-preview--c1189895-ab18-4d93-a401-69073176128a.lovable.app'
+        : window.location.origin;
+      const redirectUrl = `${baseUrl}/`;
       
       const { error } = await supabase.auth.signUp({
         email,
