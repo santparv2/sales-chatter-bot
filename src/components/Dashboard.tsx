@@ -11,8 +11,10 @@ import {
   Phone,
   Clock,
   Target,
-  CheckCircle
+  CheckCircle,
+  LogOut
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import { LeadCard } from "./LeadCard";
 import { AddLeadDialog } from "./AddLeadDialog";
 import { EmailTemplates } from "./EmailTemplates";
@@ -50,6 +52,7 @@ interface Lead {
 }
 
 const Dashboard = () => {
+  const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showAddLead, setShowAddLead] = useState(false);
   
@@ -390,6 +393,11 @@ const Dashboard = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-8">
               <h1 className="text-xl font-bold text-primary">CRM Dashboard</h1>
+              {user && (
+                <div className="text-sm text-muted-foreground">
+                  Welcome, {user.user_metadata?.display_name || user.email}
+                </div>
+              )}
               <div className="hidden md:flex space-x-6">
                 <button
                   onClick={() => setActiveTab('dashboard')}
@@ -423,10 +431,20 @@ const Dashboard = () => {
                 </button>
               </div>
             </div>
-            <Button onClick={() => setShowAddLead(true)} className="bg-gradient-to-r from-primary to-primary-glow">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Lead
-            </Button>
+            <div className="flex items-center space-x-4">
+              <Button onClick={() => setShowAddLead(true)} className="bg-gradient-to-r from-primary to-primary-glow">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Lead
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={signOut}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
