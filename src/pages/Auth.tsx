@@ -71,6 +71,10 @@ const Auth = () => {
       if (error) {
         if (error.message.includes("already registered")) {
           setError("This email is already registered. Please try logging in instead.");
+        } else if (error.message.includes("Email address") && error.message.includes("invalid")) {
+          setError("Please enter a valid email address. Make sure it follows the format: user@domain.com");
+        } else if (error.message.includes("rate limit")) {
+          setError("Too many requests. Please wait a moment before trying again.");
         } else {
           setError(error.message);
         }
@@ -146,10 +150,11 @@ const Auth = () => {
                   <Input
                     id="signin-email"
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="Enter your email (e.g., user@gmail.com)"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value.trim())}
                     required
+                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                   />
                 </div>
                 <div className="space-y-2">
@@ -191,10 +196,11 @@ const Auth = () => {
                   <Input
                     id="signup-email"
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="Enter your email (e.g., user@gmail.com)"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value.trim())}
                     required
+                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                   />
                 </div>
                 <div className="space-y-2">
