@@ -12,10 +12,13 @@ import {
   Clock,
   Target,
   CheckCircle,
-  LogOut
+  LogOut,
+  Grid3X3,
+  List
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { LeadCard } from "./LeadCard";
+import { LeadsTable } from "./LeadsTable";
 import { AddLeadDialog } from "./AddLeadDialog";
 import { EmailTemplates } from "./EmailTemplates";
 
@@ -55,6 +58,7 @@ const Dashboard = () => {
   const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showAddLead, setShowAddLead] = useState(false);
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
   
   const [leads, setLeads] = useState<Lead[]>([
     {
@@ -538,44 +542,68 @@ const Dashboard = () => {
 
         {activeTab === 'leads' && (
           <div className="space-y-6 animate-fade-in">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
                 All Leads
               </h2>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <Badge variant="secondary" className="animate-pulse-glow">
                   Total: {leads.length}
                 </Badge>
                 <Badge className="bg-success text-white hover:bg-success/90 transition-colors duration-200">
                   Qualified: {stats.qualifiedLeads}
                 </Badge>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {leads.map((lead, index) => (
-                <div 
-                  key={lead.id}
-                  className="animate-slide-up"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  <LeadCard lead={lead} />
-                </div>
-              ))}
-              {leads.length === 0 && (
-                <div className="col-span-full text-center py-16 animate-fade-in">
-                  <div className="text-6xl mb-4">🎯</div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">No leads yet</h3>
-                  <p className="text-muted-foreground mb-6">Start building your pipeline by adding your first lead!</p>
+                <div className="flex border rounded-md p-1 bg-muted/30">
                   <Button
-                    onClick={() => setShowAddLead(true)}
-                    className="bg-gradient-to-r from-primary to-primary-glow hover:shadow-[var(--shadow-button)] transition-all duration-200 hover:scale-105"
+                    variant={viewMode === 'table' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('table')}
+                    className="px-3 py-1 h-8"
                   >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Your First Lead
+                    <List className="w-4 h-4 mr-1" />
+                    Table
+                  </Button>
+                  <Button
+                    variant={viewMode === 'cards' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('cards')}
+                    className="px-3 py-1 h-8"
+                  >
+                    <Grid3X3 className="w-4 h-4 mr-1" />
+                    Cards
                   </Button>
                 </div>
-              )}
+              </div>
             </div>
+
+            {leads.length === 0 ? (
+              <div className="text-center py-16 animate-fade-in">
+                <div className="text-6xl mb-4">🎯</div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">No leads yet</h3>
+                <p className="text-muted-foreground mb-6">Start building your pipeline by adding your first lead!</p>
+                <Button
+                  onClick={() => setShowAddLead(true)}
+                  className="bg-gradient-to-r from-primary to-primary-glow hover:shadow-[var(--shadow-button)] transition-all duration-200 hover:scale-105"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Your First Lead
+                </Button>
+              </div>
+            ) : viewMode === 'table' ? (
+              <LeadsTable leads={leads} />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {leads.map((lead, index) => (
+                  <div 
+                    key={lead.id}
+                    className="animate-slide-up"
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                  >
+                    <LeadCard lead={lead} />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
