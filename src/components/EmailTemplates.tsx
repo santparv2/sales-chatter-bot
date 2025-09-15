@@ -1,152 +1,199 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Mail, 
-  Copy, 
-  Edit, 
-  Clock,
+  Plus,
+  Edit,
+  Trash2,
+  Copy,
+  Mail,
+  Save,
+  X,
+  AlertCircle,
+  Filter,
   Users,
-  TrendingUp
+  Clock,
+  TrendingUp,
+  MessageCircle,
+  Gift,
+  Heart
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 interface EmailTemplate {
   id: string;
+  user_id: string;
   name: string;
   subject: string;
   body: string;
-  type: 'welcome' | 'follow-up' | 'check-in' | 'offer';
-  stage: string;
+  lead_status: 'New' | 'Contacted' | 'Interested' | 'Not Interested' | 'Booked Consultation' | 'Enrolled' | null;
+  template_type: 'welcome' | 'follow_up' | 'reminder' | 'promotional' | 'thank_you';
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
-const emailTemplates: EmailTemplate[] = [
-  {
-    id: '1',
-    name: 'Welcome Email',
-    subject: 'Welcome! Let\'s discuss your [business goal]',
-    body: `Hi [Customer Name],
+type LeadStatus = 'New' | 'Contacted' | 'Interested' | 'Not Interested' | 'Booked Consultation' | 'Enrolled' | 'All';
+type TemplateType = 'welcome' | 'follow_up' | 'reminder' | 'promotional' | 'thank_you';
 
-Thank you for your interest in [Product/Service]. I'm excited to learn more about [specific business challenge or goal mentioned].
-
-I'd love to schedule a brief 15-minute call to understand your needs better and see how we can help you achieve [specific outcome].
-
-Are you available this week for a quick chat?
-
-Best regards,
-[Your Name]
-[Your Contact Info]`,
-    type: 'welcome',
-    stage: 'Day 1'
-  },
-  {
-    id: '2',
-    name: 'Follow-up Email',
-    subject: 'Just checking in – Any questions?',
-    body: `Hi [Customer Name],
-
-I just wanted to follow up on our last conversation. I hope you had a chance to think about [product/service name] and how it might support your [goal/business needs].
-
-If you have any questions or need more information, I'm happy to help.
-
-Looking forward to hearing from you!
-
-Best regards,
-[Your Name]
-[Your Contact Info]`,
-    type: 'follow-up',
-    stage: 'Day 3'
-  },
-  {
-    id: '3',
-    name: 'Value Share Email',
-    subject: 'Case study: How [Similar Company] achieved [Result]',
-    body: `Hi [Customer Name],
-
-I thought you'd be interested in this case study about how [Similar Company] used our solution to [achieve specific result].
-
-Key highlights:
-• [Specific benefit 1]
-• [Specific benefit 2] 
-• [Quantified result]
-
-I'd be happy to discuss how we could achieve similar results for [Customer's Company].
-
-Would you like to schedule a quick 15-minute call this week?
-
-Best regards,
-[Your Name]`,
-    type: 'follow-up',
-    stage: 'Day 7'
-  },
-  {
-    id: '4',
-    name: 'Decision Nudge',
-    subject: 'Moving forward with [Solution] – Questions?',
-    body: `Hi [Customer Name],
-
-I wanted to reconnect and see if you've had a chance to consider our proposal for [specific solution/service].
-
-I understand decision-making takes time, and I'm here to address any questions or concerns you might have.
-
-If timing isn't right now, I'd love to understand what would make this a better fit for your schedule.
-
-Happy to jump on a quick call at your convenience.
-
-Best regards,
-[Your Name]`,
-    type: 'offer',
-    stage: 'Day 14'
-  },
-  {
-    id: '5',
-    name: 'Long-term Check-in',
-    subject: 'Checking in – How are things going?',
-    body: `Hi [Customer Name],
-
-I hope you're doing well! I wanted to check in and see how things are progressing with [business area/challenge we discussed].
-
-Even if our solution isn't the right fit right now, I'd love to stay connected and be a resource for you.
-
-Is there anything I can help with or any industry insights that might be valuable?
-
-Best regards,
-[Your Name]`,
-    type: 'check-in',
-    stage: 'Day 30+'
-  }
-];
+const initialFormData = {
+  name: '',
+  subject: '',
+  body: '',
+  lead_status: null as LeadStatus | null,
+  template_type: 'follow_up' as TemplateType
+};
 
 export const EmailTemplates = () => {
+  const { user } = useAuth();
   const { toast } = useToast();
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
+  const [formData, setFormData] = useState(initialFormData);
+  const [statusFilter, setStatusFilter] = useState<LeadStatus>('All');
 
-  const getTypeColor = (type: EmailTemplate['type']) => {
-    switch (type) {
-      case 'welcome':
-        return 'bg-success text-success-foreground';
-      case 'follow-up':
-        return 'bg-primary text-primary-foreground';
-      case 'check-in':
-        return 'bg-warning text-warning-foreground';
-      case 'offer':
-        return 'bg-hot-lead text-white';
-      default:
-        return 'bg-muted';
+  useEffect(() => {
+    if (user) {
+      fetchTemplates();
+    }
+  }, [user]);
+
+  const fetchTemplates = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('email_templates')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      // Type assertion to ensure proper typing
+      const typedData = (data || []) as EmailTemplate[];
+      setTemplates(typedData);
+    } catch (error) {
+      console.error('Error fetching templates:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch email templates",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getTypeIcon = (type: EmailTemplate['type']) => {
-    switch (type) {
-      case 'welcome':
-        return <Users className="w-4 h-4" />;
-      case 'follow-up':
-        return <Clock className="w-4 h-4" />;
-      case 'check-in':
-        return <Mail className="w-4 h-4" />;
-      case 'offer':
-        return <TrendingUp className="w-4 h-4" />;
-      default:
-        return <Mail className="w-4 h-4" />;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    try {
+      if (editingTemplate) {
+        // Update existing template
+        const { error } = await supabase
+          .from('email_templates')
+          .update({
+            name: formData.name,
+            subject: formData.subject,
+            body: formData.body,
+            lead_status: formData.lead_status === 'All' ? null : formData.lead_status,
+            template_type: formData.template_type,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', editingTemplate.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Template updated successfully"
+        });
+      } else {
+        // Create new template
+        const { error } = await supabase
+          .from('email_templates')
+          .insert({
+            user_id: user.id,
+            name: formData.name,
+            subject: formData.subject,
+            body: formData.body,
+            lead_status: formData.lead_status === 'All' ? null : formData.lead_status,
+            template_type: formData.template_type
+          });
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Template created successfully"
+        });
+      }
+
+      setFormData(initialFormData);
+      setShowForm(false);
+      setEditingTemplate(null);
+      fetchTemplates();
+    } catch (error) {
+      console.error('Error saving template:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save template",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEdit = (template: EmailTemplate) => {
+    setEditingTemplate(template);
+    setFormData({
+      name: template.name,
+      subject: template.subject,
+      body: template.body,
+      lead_status: template.lead_status || 'All',
+      template_type: template.template_type
+    });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (templateId: string) => {
+    try {
+      const { error } = await supabase
+        .from('email_templates')
+        .update({ is_active: false })
+        .eq('id', templateId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Template deleted successfully"
+      });
+      fetchTemplates();
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete template",
+        variant: "destructive"
+      });
     }
   };
 
@@ -155,36 +202,246 @@ export const EmailTemplates = () => {
     navigator.clipboard.writeText(fullTemplate);
     toast({
       title: "Template Copied",
-      description: "Email template has been copied to your clipboard",
+      description: "Email template has been copied to your clipboard"
     });
   };
 
+  const getStatusColor = (status: LeadStatus | null) => {
+    switch (status) {
+      case 'New':
+        return 'bg-blue-500 text-white';
+      case 'Contacted':
+        return 'bg-yellow-500 text-white';
+      case 'Interested':
+        return 'bg-green-500 text-white';
+      case 'Booked Consultation':
+        return 'bg-purple-500 text-white';
+      case 'Enrolled':
+        return 'bg-emerald-500 text-white';
+      case 'Not Interested':
+        return 'bg-red-500 text-white';
+      default:
+        return 'bg-muted text-muted-foreground';
+    }
+  };
+
+  const getTypeColor = (type: TemplateType) => {
+    switch (type) {
+      case 'welcome':
+        return 'bg-success text-success-foreground';
+      case 'follow_up':
+        return 'bg-primary text-primary-foreground';
+      case 'reminder':
+        return 'bg-warning text-warning-foreground';
+      case 'promotional':
+        return 'bg-hot-lead text-white';
+      case 'thank_you':
+        return 'bg-accent text-accent-foreground';
+      default:
+        return 'bg-muted';
+    }
+  };
+
+  const getTypeIcon = (type: TemplateType) => {
+    switch (type) {
+      case 'welcome':
+        return <Users className="w-4 h-4" />;
+      case 'follow_up':
+        return <Clock className="w-4 h-4" />;
+      case 'reminder':
+        return <AlertCircle className="w-4 h-4" />;
+      case 'promotional':
+        return <TrendingUp className="w-4 h-4" />;
+      case 'thank_you':
+        return <Heart className="w-4 h-4" />;
+      default:
+        return <Mail className="w-4 h-4" />;
+    }
+  };
+
+  const filteredTemplates = templates.filter(template => {
+    if (statusFilter === 'All') return true;
+    return template.lead_status === statusFilter;
+  });
+
+  if (loading) {
+    return <div className="flex justify-center p-8">Loading templates...</div>;
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Email Templates</h2>
-        <Badge variant="secondary">
-          {emailTemplates.length} Templates
-        </Badge>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+          Email Templates
+        </h2>
+        <div className="flex gap-2">
+          <Badge variant="secondary">
+            {filteredTemplates.length} Templates
+          </Badge>
+          <Button onClick={() => setShowForm(true)} className="bg-gradient-to-r from-primary to-primary-glow">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Template
+          </Button>
+        </div>
       </div>
 
+      {/* Filter */}
+      <Card className="p-4">
+        <div className="flex items-center gap-4">
+          <Filter className="w-4 h-4 text-muted-foreground" />
+          <Label htmlFor="status-filter">Filter by Lead Status:</Label>
+          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as LeadStatus)}>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All Statuses</SelectItem>
+              <SelectItem value="New">New</SelectItem>
+              <SelectItem value="Contacted">Contacted</SelectItem>
+              <SelectItem value="Interested">Interested</SelectItem>
+              <SelectItem value="Not Interested">Not Interested</SelectItem>
+              <SelectItem value="Booked Consultation">Booked Consultation</SelectItem>
+              <SelectItem value="Enrolled">Enrolled</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </Card>
+
+      {/* Form */}
+      {showForm && (
+        <Card className="border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="w-5 h-5" />
+              {editingTemplate ? 'Edit Template' : 'Create New Template'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Template Name</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    placeholder="e.g., Welcome Email for New Leads"
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="template_type">Template Type</Label>
+                  <Select value={formData.template_type} onValueChange={(value) => setFormData({...formData, template_type: value as TemplateType})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="welcome">Welcome</SelectItem>
+                      <SelectItem value="follow_up">Follow-up</SelectItem>
+                      <SelectItem value="reminder">Reminder</SelectItem>
+                      <SelectItem value="promotional">Promotional</SelectItem>
+                      <SelectItem value="thank_you">Thank You</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="lead_status">Lead Status (Optional)</Label>
+                <Select value={formData.lead_status || 'All'} onValueChange={(value) => setFormData({...formData, lead_status: value === 'All' ? null : value as LeadStatus})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select lead status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">All Statuses</SelectItem>
+                    <SelectItem value="New">New</SelectItem>
+                    <SelectItem value="Contacted">Contacted</SelectItem>
+                    <SelectItem value="Interested">Interested</SelectItem>
+                    <SelectItem value="Not Interested">Not Interested</SelectItem>
+                    <SelectItem value="Booked Consultation">Booked Consultation</SelectItem>
+                    <SelectItem value="Enrolled">Enrolled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="subject">Email Subject</Label>
+                <Input
+                  id="subject"
+                  value={formData.subject}
+                  onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                  placeholder="Welcome to our wellness program!"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="body">Email Body</Label>
+                <Textarea
+                  id="body"
+                  value={formData.body}
+                  onChange={(e) => setFormData({...formData, body: e.target.value})}
+                  placeholder="Hi {{firstName}}, ..."
+                  rows={8}
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  Use variables like {`{{firstName}}`}, {`{{primaryGoals}}`}, {`{{assignedSalesRep}}`} to personalize emails
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <Button type="submit">
+                  <Save className="w-4 h-4 mr-2" />
+                  {editingTemplate ? 'Update Template' : 'Create Template'}
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => {
+                    setShowForm(false);
+                    setEditingTemplate(null);
+                    setFormData(initialFormData);
+                  }}
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Templates Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {emailTemplates.map((template) => (
+        {filteredTemplates.map((template) => (
           <Card key={template.id} className="bg-gradient-to-br from-card to-secondary/20 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-all duration-300">
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    {getTypeIcon(template.type)}
+                    {getTypeIcon(template.template_type)}
                     {template.name}
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Use on: {template.stage}
-                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <Badge className={getTypeColor(template.template_type)}>
+                      {template.template_type.replace('_', ' ')}
+                    </Badge>
+                    {template.lead_status && (
+                      <Badge className={getStatusColor(template.lead_status)} variant="secondary">
+                        {template.lead_status}
+                      </Badge>
+                    )}
+                    {!template.lead_status && (
+                      <Badge variant="secondary">
+                        All Statuses
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-                <Badge className={getTypeColor(template.type)}>
-                  {template.type}
-                </Badge>
               </div>
             </CardHeader>
             
@@ -213,11 +470,23 @@ export const EmailTemplates = () => {
                   onClick={() => copyTemplate(template)}
                 >
                   <Copy className="w-4 h-4 mr-1" />
-                  Copy Template
+                  Copy
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleEdit(template)}
+                >
                   <Edit className="w-4 h-4 mr-1" />
                   Edit
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleDelete(template.id)}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Delete
                 </Button>
               </div>
             </CardContent>
@@ -225,38 +494,47 @@ export const EmailTemplates = () => {
         ))}
       </div>
 
+      {filteredTemplates.length === 0 && (
+        <Card className="p-8 text-center">
+          <div className="text-muted-foreground">
+            <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <h3 className="text-lg font-semibold mb-2">No templates found</h3>
+            <p className="mb-4">
+              {statusFilter === 'All' 
+                ? "Create your first email template to get started with lead follow-ups."
+                : `No templates found for ${statusFilter} leads.`
+              }
+            </p>
+            <Button onClick={() => setShowForm(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Create Template
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {/* Help Card */}
       <Card className="bg-gradient-to-r from-primary/5 to-primary-glow/5 border-primary/20">
         <CardHeader>
-          <CardTitle className="text-lg text-primary">
-            📧 Follow-Up Schedule Quick Reference
+          <CardTitle className="text-lg text-primary flex items-center gap-2">
+            <Gift className="w-5 h-5" />
+            Template Variables
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-            <div className="space-y-2">
-              <p className="font-medium">Day 1: Welcome Email</p>
-              <p className="text-muted-foreground">Acknowledge interest, intro call</p>
-            </div>
-            <div className="space-y-2">
-              <p className="font-medium">Day 3: Follow-up</p>
-              <p className="text-muted-foreground">Address questions, build rapport</p>
-            </div>
-            <div className="space-y-2">
-              <p className="font-medium">Day 7: Share Value</p>
-              <p className="text-muted-foreground">Case study, demo, testimonial</p>
-            </div>
-            <div className="space-y-2">
-              <p className="font-medium">Day 14: Decision Nudge</p>
-              <p className="text-muted-foreground">Reconnect with offer</p>
-            </div>
-            <div className="space-y-2">
-              <p className="font-medium">Day 30: Check-in</p>
-              <p className="text-muted-foreground">Stay top-of-mind</p>
-            </div>
-            <div className="space-y-2">
-              <p className="font-medium">Day 60+: Nurture</p>
-              <p className="text-muted-foreground">Monthly newsletters</p>
-            </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Use these variables in your templates to personalize emails for each lead:
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+            <code className="bg-muted px-2 py-1 rounded">{`{{firstName}}`}</code>
+            <code className="bg-muted px-2 py-1 rounded">{`{{lastName}}`}</code>
+            <code className="bg-muted px-2 py-1 rounded">{`{{email}}`}</code>
+            <code className="bg-muted px-2 py-1 rounded">{`{{primaryGoals}}`}</code>
+            <code className="bg-muted px-2 py-1 rounded">{`{{challengesPainPoints}}`}</code>
+            <code className="bg-muted px-2 py-1 rounded">{`{{assignedSalesRep}}`}</code>
+            <code className="bg-muted px-2 py-1 rounded">{`{{servicePackageDiscussed}}`}</code>
+            <code className="bg-muted px-2 py-1 rounded">{`{{budgetRange}}`}</code>
+            <code className="bg-muted px-2 py-1 rounded">{`{{preferredFollowUpTime}}`}</code>
           </div>
         </CardContent>
       </Card>
