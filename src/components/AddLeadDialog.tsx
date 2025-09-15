@@ -471,10 +471,10 @@ export const AddLeadDialog = ({ open, onOpenChange, onAddLead }: AddLeadDialogPr
                     <SelectValue placeholder="Select budget range" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="$0-$500">$0-$500</SelectItem>
-                    <SelectItem value="$500-$1000">$500-$1000</SelectItem>
-                    <SelectItem value="$1000-$2000">$1000-$2000</SelectItem>
-                    <SelectItem value="$2000+">$2000+</SelectItem>
+                    <SelectItem value="Rs0-Rs500">Rs0-Rs500</SelectItem>
+                    <SelectItem value="Rs500-Rs1000">Rs500-Rs1000</SelectItem>
+                    <SelectItem value="Rs1000-Rs2000">Rs1000-Rs2000</SelectItem>
+                    <SelectItem value="Rs2000+">Rs2000+</SelectItem>
                     <SelectItem value="Not Disclosed">Not Disclosed</SelectItem>
                   </SelectContent>
                 </Select>
@@ -495,7 +495,7 @@ export const AddLeadDialog = ({ open, onOpenChange, onAddLead }: AddLeadDialogPr
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="value">Potential Value ($)</Label>
+                <Label htmlFor="value">Potential Value (Rs)</Label>
                 <Input
                   id="value"
                   type="number"

@@ -139,7 +139,7 @@ export const LeadCard = ({ lead }: LeadCardProps) => {
           
           <div className="flex items-center gap-2 text-sm">
             <DollarSign className="w-4 h-4 text-success" />
-            <span className="font-medium">${lead.value.toLocaleString()}</span>
+            <span className="font-medium">Rs{lead.value.toLocaleString()}</span>
             {lead.budgetRange && (
               <span className="text-xs text-muted-foreground">({lead.budgetRange})</span>
             )}
